@@ -4,6 +4,7 @@ import {initCardToken, ICard, CardOptions, TokenResponse} from "@kushki/js-sdk/C
 
 function App() {
     const [token, setToken] = useState("");
+    const [localError, setLocalError] = useState(null);
     const [card, setCard] = useState<ICard>();
     const hostedFieldsStyles = {
         container: {
@@ -79,23 +80,30 @@ function App() {
         currency:"COP",
         amount:{
             iva:100,
-            subtotalIva0:1000,
-            subtotalIva:1000,
+            subtotalIva0:10001,
+            subtotalIva:10001,
         }
     };
 
     useEffect(() => {
         //TODO: Change for your public merchant id
-        init({inTest: true, publicCredentialId: "{{PUBLIC_MERCHANT_ID}}",})
-            .then(async (kushkiInstance: IKushki) =>
-                setCard(await initCardToken(kushkiInstance, options)));
+        init({inTest: true, publicCredentialId: "eda2b0b0c5f3426483a678c82cc8a5ef",})
+            .then(async (kushkiInstance: IKushki) =>{
+                console.log("kushkiInstance", kushkiInstance)
+                setCard(await initCardToken(kushkiInstance, options));
+            })
 
     }, []);
 
     const getToken = () => {
+        console.log("cardinstance", card);
         if (card) {
             card.requestToken().then((token: TokenResponse) => {
+                console.log("response", token);
                 setToken(token.token);
+            }).catch((error:any)=> {
+    console.log("error", error, typeof error);
+                setLocalError(JSON.stringify(error));
             });
         }
     };
@@ -103,7 +111,7 @@ function App() {
   return (
       <>
           <div>
-              <h1>Kushki Fields JS - DEMO</h1>
+              <h1>Kushki Fields JS - DEMO 2</h1>
           </div>
           <div>
               <div id="cardHolderName_id"></div>
@@ -115,6 +123,7 @@ function App() {
                   Pagar
               </button>
           </div>
+          <div id="div_error">aqui va el error {localError}</div>
 
           <hr/>
           <h3 data-testid="token">Token: {token}</h3>
